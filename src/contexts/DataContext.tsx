@@ -58,9 +58,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const fetchData = async () => {
       try {
         const [ordersRes, productsRes, customersRes] = await Promise.all([
-          fetch('http://localhost:5000/api/orders'),
-          fetch('http://localhost:5000/api/products'),
-          fetch('http://localhost:5000/api/customers')
+          fetch('/api/orders'),
+          fetch('/api/products'),
+          fetch('/api/customers')
         ]);
 
         if (ordersRes.ok && productsRes.ok && customersRes.ok) {
@@ -82,7 +82,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addOrder = async (order: Omit<Order, "id">) => {
     const newOrder = { ...order, id: `ORD-${Date.now().toString().slice(-3)}` };
     try {
-      await fetch('http://localhost:5000/api/orders', {
+      await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newOrder)
@@ -93,7 +93,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateOrder = async (id: string, updates: Partial<Order>) => {
     try {
-      await fetch(`http://localhost:5000/api/orders/${id}`, {
+      await fetch(`/api/orders/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -104,7 +104,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteOrder = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/orders/${id}`, { method: 'DELETE' });
+      await fetch(`/api/orders/${id}`, { method: 'DELETE' });
       setOrders(orders.filter(o => o.id !== id));
     } catch (err) { console.error(err); }
   };
@@ -113,7 +113,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addProduct = async (product: Omit<Product, "id">) => {
     const newProduct = { ...product, id: `INV-${Date.now().toString().slice(-3)}` };
     try {
-      await fetch('http://localhost:5000/api/products', {
+      await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProduct)
@@ -124,7 +124,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     try {
-      await fetch(`http://localhost:5000/api/products/${id}`, {
+      await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -135,7 +135,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteProduct = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+      await fetch(`/api/products/${id}`, { method: 'DELETE' });
       setProducts(products.filter(p => p.id !== id));
     } catch (err) { console.error(err); }
   };
@@ -143,7 +143,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Customer Actions
   const addCustomer = async (customer: Omit<Customer, "id">) => {
     try {
-      const res = await fetch('http://localhost:5000/api/customers', {
+      const res = await fetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(customer)
@@ -156,7 +156,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteCustomer = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/customers/${id}`, { method: 'DELETE' });
+      await fetch(`/api/customers/${id}`, { method: 'DELETE' });
       setCustomers(customers.filter(c => c.id !== id));
     } catch (err) { console.error(err); }
   };

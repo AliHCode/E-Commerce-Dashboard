@@ -196,10 +196,15 @@ app.delete('/api/customers/:id', (req, res) => {
     }
 });
 
-// Start the server listening on PORT 5000
-app.listen(PORT, () => {
-    console.log(`\n======================================`);
-    console.log(`🚀 Aether Backend running on port ${PORT}`);
-    console.log(`📡 URL: http://localhost:${PORT}`);
-    console.log(`======================================\n`);
-});
+// Only listen on the port if we are running the server locally (not in a Vercel serverless environment)
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`\n======================================`);
+        console.log(`🚀 Aether Backend running on port ${PORT}`);
+        console.log(`📡 URL: http://localhost:${PORT}`);
+        console.log(`======================================\n`);
+    });
+}
+
+// Export the app for Vercel's serverless builder in api/index.ts
+export default app;

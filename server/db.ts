@@ -1,10 +1,14 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-// 1. Connection: We tell better-sqlite3 where to store our database file.
-// If 'aether.db' doesn't exist, it will create it in the server folder automatically!
-const dbPath = path.resolve(__dirname, 'aether.db');
-const db = new Database(dbPath, { verbose: console.log }); // verbose lets us see the SQL queries in the terminal
+// 1. Connection: On Vercel, the file system is read-only except for /tmp.
+// We will try to place the ephemeral database in /tmp on Vercel, OR in the root locally.
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel
+    ? path.join('/tmp', 'aether.db')
+    : path.join(process.cwd(), 'aether.db'); // Fallback to root for local dev
+
+const db = new Database(dbPath, { verbose: process.env.NODE_ENV !== 'production' ? console.log : undefined }); // hide logs in prod
 
 console.log('✅ Connected to the SQLite database.');
 
