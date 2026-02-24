@@ -79,41 +79,86 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Order Actions
-  const addOrder = (order: Omit<Order, "id">) => {
+  const addOrder = async (order: Omit<Order, "id">) => {
     const newOrder = { ...order, id: `ORD-${Date.now().toString().slice(-3)}` };
-    setOrders([newOrder, ...orders]);
+    try {
+      await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder)
+      });
+      setOrders([newOrder as Order, ...orders]);
+    } catch (err) { console.error(err); }
   };
 
-  const updateOrder = (id: string, updates: Partial<Order>) => {
-    setOrders(orders.map(o => o.id === id ? { ...o, ...updates } : o));
+  const updateOrder = async (id: string, updates: Partial<Order>) => {
+    try {
+      await fetch(`http://localhost:5000/api/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      setOrders(orders.map(o => o.id === id ? { ...o, ...updates } : o));
+    } catch (err) { console.error(err); }
   };
 
-  const deleteOrder = (id: string) => {
-    setOrders(orders.filter(o => o.id !== id));
+  const deleteOrder = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/orders/${id}`, { method: 'DELETE' });
+      setOrders(orders.filter(o => o.id !== id));
+    } catch (err) { console.error(err); }
   };
 
   // Product Actions
-  const addProduct = (product: Omit<Product, "id">) => {
+  const addProduct = async (product: Omit<Product, "id">) => {
     const newProduct = { ...product, id: `INV-${Date.now().toString().slice(-3)}` };
-    setProducts([newProduct, ...products]);
+    try {
+      await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct)
+      });
+      setProducts([newProduct as Product, ...products]);
+    } catch (err) { console.error(err); }
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
-    setProducts(products.map(p => p.id === id ? { ...p, ...updates } : p));
+  const updateProduct = async (id: string, updates: Partial<Product>) => {
+    try {
+      await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      setProducts(products.map(p => p.id === id ? { ...p, ...updates } : p));
+    } catch (err) { console.error(err); }
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
+  const deleteProduct = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/products/${id}`, { method: 'DELETE' });
+      setProducts(products.filter(p => p.id !== id));
+    } catch (err) { console.error(err); }
   };
 
   // Customer Actions
-  const addCustomer = (customer: Omit<Customer, "id">) => {
-    const newCustomer = { ...customer, id: Date.now() };
-    setCustomers([newCustomer, ...customers]);
+  const addCustomer = async (customer: Omit<Customer, "id">) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customer)
+      });
+      const data = await res.json();
+      const newCustomer = { ...customer, id: data.id || Date.now() };
+      setCustomers([newCustomer as Customer, ...customers]);
+    } catch (err) { console.error(err); }
   };
 
-  const deleteCustomer = (id: number) => {
-    setCustomers(customers.filter(c => c.id !== id));
+  const deleteCustomer = async (id: number) => {
+    try {
+      await fetch(`http://localhost:5000/api/customers/${id}`, { method: 'DELETE' });
+      setCustomers(customers.filter(c => c.id !== id));
+    } catch (err) { console.error(err); }
   };
 
   return (
