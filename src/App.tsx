@@ -95,13 +95,13 @@ function AppLayout() {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-20 items-center px-8">
-          <div className="flex items-center gap-3 font-bold text-xl tracking-tight">
-            <LogoIcon className={cn("w-8 h-8", theme === 'dark' ? 'text-white' : 'text-slate-900')} />
+          <div className="flex items-center font-bold text-xl tracking-tight">
+            <LogoIcon className={cn("w-7 h-7 -mr-0.5", theme === 'dark' ? 'text-white' : 'text-slate-900')} />
             <span className={cn(
               "font-sans text-2xl tracking-tight font-bold",
               theme === 'dark' ? 'text-white' : 'text-slate-900'
             )}>
-              Aether
+              ether
             </span>
           </div>
           <button

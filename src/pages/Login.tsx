@@ -40,22 +40,17 @@ export function Login() {
       >
         <div className="mb-10 text-center flex flex-col items-center">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.6, type: "spring" }}
-            className="flex items-center justify-center mb-6"
-          >
-            <LogoIcon className="w-12 h-12 text-slate-900" />
-          </motion.div>
-
-          <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
+            className="flex flex-col items-center"
           >
-            <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 mb-2">
-              Aether
-            </h1>
+            <div className="flex items-center justify-center mb-2">
+              <LogoIcon className="w-10 h-10 text-slate-900 -mr-1" />
+              <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 leading-none">
+                ether
+              </h1>
+            </div>
             <p className="text-slate-500 text-sm font-medium">
               Sign in to your enterprise dashboard
             </p>
