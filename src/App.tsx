@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  Settings as SettingsIcon, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Users,
+  Settings as SettingsIcon,
   Bell,
   Search,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Hexagon
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
@@ -88,24 +89,24 @@ function AppLayout() {
       {/* Sidebar - Floating style on desktop */}
       <aside className={cn(
         "fixed inset-y-0 left-0 z-50 w-72 transform transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-[calc(100vh-2rem)] lg:m-4 lg:rounded-2xl lg:shadow-2xl",
-        theme === 'dark' 
-          ? 'bg-slate-900/80 backdrop-blur-xl border-slate-800 lg:border' 
+        theme === 'dark'
+          ? 'bg-slate-900/80 backdrop-blur-xl border-slate-800 lg:border'
           : 'bg-white/90 backdrop-blur-xl border-slate-200 lg:border shadow-sm',
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-20 items-center px-8">
           <div className="flex items-center gap-3 font-bold text-xl tracking-tight">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-accent-500 shadow-lg shadow-primary-500/20">
-              <span className="absolute w-3 h-3 bg-white rounded-sm rotate-45"></span>
+              <Hexagon className="absolute w-5 h-5 text-white" fill="currentColor" />
             </div>
             <span className={cn(
-              "font-sans text-2xl tracking-tight font-bold", 
+              "font-sans text-2xl tracking-tight font-bold",
               theme === 'dark' ? 'text-white' : 'text-slate-900'
             )}>
               Aether
             </span>
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="ml-auto lg:hidden text-slate-500 hover:text-slate-700"
           >
@@ -118,7 +119,7 @@ function AppLayout() {
           <NavItem to="/orders" icon={ShoppingCart} label="Orders" active={location.pathname.startsWith("/orders")} onClick={() => setIsSidebarOpen(false)} />
           <NavItem to="/products" icon={Package} label="Products" active={location.pathname.startsWith("/products")} onClick={() => setIsSidebarOpen(false)} />
           <NavItem to="/customers" icon={Users} label="Customers" active={location.pathname.startsWith("/customers")} onClick={() => setIsSidebarOpen(false)} />
-          
+
           <div className="pt-8 pb-3 px-4">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Settings & Prefs</p>
           </div>
@@ -130,9 +131,9 @@ function AppLayout() {
           theme === 'dark' ? 'bg-white/[0.03] border border-white/[0.05]' : 'bg-slate-100/50 border border-slate-200'
         )}>
           <div className="flex items-center gap-3">
-            <img 
-              src={user?.avatar || "https://picsum.photos/seed/avatar/100/100"} 
-              alt="User" 
+            <img
+              src={user?.avatar || "https://picsum.photos/seed/avatar/100/100"}
+              alt="User"
               className="w-10 h-10 rounded-full ring-2 ring-primary-500/20 object-cover"
               referrerPolicy="no-referrer"
             />
@@ -158,7 +159,7 @@ function AppLayout() {
           "lg:bg-transparent lg:rounded-2xl lg:mt-2 lg:mx-4"
         )}>
           <div className="flex items-center gap-4 w-full max-w-xl">
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-800/50 rounded-lg transition-colors"
             >
@@ -171,8 +172,8 @@ function AppLayout() {
                 placeholder="Search resources, orders, or data..."
                 className={cn(
                   "w-full h-10 pl-10 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 shadow-sm",
-                  theme === 'dark' 
-                    ? 'bg-slate-900 border border-slate-800 text-slate-200 placeholder-slate-500 focus:bg-slate-800 focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/50' 
+                  theme === 'dark'
+                    ? 'bg-slate-900 border border-slate-800 text-slate-200 placeholder-slate-500 focus:bg-slate-800 focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/50'
                     : 'bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                 )}
               />
@@ -207,16 +208,16 @@ function AppLayout() {
 
 function NavItem({ icon: Icon, label, active = false, to, onClick }: { icon: any, label: string, active?: boolean, to: string, onClick?: () => void }) {
   const { theme } = useTheme();
-  
+
   return (
-    <Link 
+    <Link
       to={to}
       onClick={onClick}
       className={cn(
         "w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative group overflow-hidden",
-        active 
-          ? theme === 'dark' 
-            ? "text-primary-300 bg-primary-500/10 shadow-[inset_0_0_0_1px_rgba(20,184,166,0.2)]" 
+        active
+          ? theme === 'dark'
+            ? "text-primary-300 bg-primary-500/10 shadow-[inset_0_0_0_1px_rgba(20,184,166,0.2)]"
             : "text-primary-700 bg-primary-50 shadow-[inset_0_0_0_1px_rgba(20,184,166,0.2)]"
           : theme === 'dark'
             ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
