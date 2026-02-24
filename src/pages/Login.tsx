@@ -43,10 +43,9 @@ export function Login() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.6, type: "spring" }}
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 shadow-lg shadow-primary-500/20 flex items-center justify-center mb-6 relative group"
+            className="flex items-center justify-center mb-6"
           >
-            <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <LogoIcon className="w-8 h-8 text-white" />
+            <LogoIcon className="w-12 h-12 text-slate-900" />
           </motion.div>
 
           <motion.div
@@ -55,7 +54,7 @@ export function Login() {
             transition={{ delay: 0.2, duration: 0.6 }}
           >
             <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 mb-2">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600">Aether</span>
+              Aether
             </h1>
             <p className="text-slate-500 text-sm font-medium">
               Sign in to your enterprise dashboard

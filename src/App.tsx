@@ -96,9 +96,7 @@ function AppLayout() {
       )}>
         <div className="flex h-20 items-center px-8">
           <div className="flex items-center gap-3 font-bold text-xl tracking-tight">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-accent-500 shadow-lg shadow-primary-500/20">
-              <LogoIcon className="absolute w-5 h-5 text-white" />
-            </div>
+            <LogoIcon className={cn("w-8 h-8", theme === 'dark' ? 'text-white' : 'text-slate-900')} />
             <span className={cn(
               "font-sans text-2xl tracking-tight font-bold",
               theme === 'dark' ? 'text-white' : 'text-slate-900'
