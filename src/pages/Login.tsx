@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Loader2, Hexagon } from "lucide-react";
+import { ArrowRight, Loader2, Atom } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +45,7 @@ export function Login() {
             className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 shadow-lg shadow-primary-500/20 flex items-center justify-center mb-6 relative group"
           >
             <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Hexagon className="w-8 h-8 text-white" fill="currentColor" />
+            <Atom className="w-8 h-8 text-white" />
           </motion.div>
 
           <motion.div

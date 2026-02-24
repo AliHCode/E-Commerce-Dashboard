@@ -10,7 +10,7 @@ import {
   Menu,
   X,
   LogOut,
-  Hexagon
+  Atom
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
@@ -97,7 +97,7 @@ function AppLayout() {
         <div className="flex h-20 items-center px-8">
           <div className="flex items-center gap-3 font-bold text-xl tracking-tight">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-accent-500 shadow-lg shadow-primary-500/20">
-              <Hexagon className="absolute w-5 h-5 text-white" fill="currentColor" />
+              <Atom className="absolute w-5 h-5 text-white" />
             </div>
             <span className={cn(
               "font-sans text-2xl tracking-tight font-bold",
