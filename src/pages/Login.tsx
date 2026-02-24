@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Loader2, Atom } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { LogoIcon } from "@/components/LogoIcon";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -45,7 +46,7 @@ export function Login() {
             className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 shadow-lg shadow-primary-500/20 flex items-center justify-center mb-6 relative group"
           >
             <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Atom className="w-8 h-8 text-white" />
+            <LogoIcon className="w-8 h-8 text-white" />
           </motion.div>
 
           <motion.div
@@ -53,8 +54,8 @@ export function Login() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <h1 className="text-3xl font-sans font-bold tracking-tight text-slate-900 mb-2">
-              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600">Aether</span>
+            <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 mb-2">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600">Aether</span>
             </h1>
             <p className="text-slate-500 text-sm font-medium">
               Sign in to your enterprise dashboard
