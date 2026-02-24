@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
-import { RECENT_ORDERS, INVENTORY, SALES_DATA } from "@/data/mockData";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Define types based on mock data
 export interface Order {
@@ -48,69 +47,36 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Initial Customers Data (moved from Customers.tsx to here for global state)
-const INITIAL_CUSTOMERS: Customer[] = [
-  {
-    id: 1,
-    name: "Alex Morgan",
-    email: "alex@aether.io",
-    phone: "+1 (555) 123-4567",
-    location: "New York, USA",
-    orders: 12,
-    spent: "$1,234.56",
-    status: "Active",
-    avatar: "https://picsum.photos/seed/alex/100/100"
-  },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    email: "sarah@example.com",
-    phone: "+1 (555) 987-6543",
-    location: "San Francisco, USA",
-    orders: 8,
-    spent: "$856.22",
-    status: "Active",
-    avatar: "https://picsum.photos/seed/sarah/100/100"
-  },
-  {
-    id: 3,
-    name: "James Wilson",
-    email: "james@example.com",
-    phone: "+1 (555) 456-7890",
-    location: "London, UK",
-    orders: 3,
-    spent: "$234.00",
-    status: "Inactive",
-    avatar: "https://picsum.photos/seed/james/100/100"
-  },
-  {
-    id: 4,
-    name: "Maria Garcia",
-    email: "maria@example.com",
-    phone: "+1 (555) 234-5678",
-    location: "Madrid, Spain",
-    orders: 24,
-    spent: "$3,456.78",
-    status: "Active",
-    avatar: "https://picsum.photos/seed/maria/100/100"
-  },
-  {
-    id: 5,
-    name: "David Kim",
-    email: "david@example.com",
-    phone: "+1 (555) 876-5432",
-    location: "Seoul, Korea",
-    orders: 1,
-    spent: "$45.00",
-    status: "New",
-    avatar: "https://picsum.photos/seed/david/100/100"
-  }
-];
-
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>(RECENT_ORDERS as Order[]);
-  const [products, setProducts] = useState<Product[]>(INVENTORY as Product[]);
-  const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // FETCH DATA FROM OUR EXPRESS BACKEND API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ordersRes, productsRes, customersRes] = await Promise.all([
+          fetch('http://localhost:5000/api/orders'),
+          fetch('http://localhost:5000/api/products'),
+          fetch('http://localhost:5000/api/customers')
+        ]);
+
+        if (ordersRes.ok && productsRes.ok && customersRes.ok) {
+          setOrders(await ordersRes.json());
+          setProducts(await productsRes.json());
+          setCustomers(await customersRes.json());
+        }
+      } catch (error) {
+        console.error("Failed to fetch data from backend API:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Order Actions
   const addOrder = (order: Omit<Order, "id">) => {

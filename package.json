@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "server": "tsx watch server/index.ts"
+    "server": "tsx watch server/index.ts",
+    "seed": "tsx server/seed.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
