@@ -45,7 +45,7 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
         <div className="flex items-center gap-2">

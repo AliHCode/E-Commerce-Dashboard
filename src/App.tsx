@@ -152,9 +152,9 @@ function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 z-10 lg:my-4 lg:mr-4">
         {/* Header - Floating minimalist style */}
         <header className={cn(
-          "h-20 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-30 transition-all duration-200 backdrop-blur-md",
+          "h-14 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 transition-all duration-200 backdrop-blur-md pt-2 lg:pt-0",
           theme === 'dark' ? 'bg-[#030712]/70 border-b lg:border-none border-slate-800' : 'bg-slate-50/70 border-b lg:border-none border-slate-200 lg:bg-transparent',
-          "lg:bg-transparent lg:rounded-2xl lg:mt-2 lg:mx-4"
+          "lg:bg-transparent lg:rounded-2xl lg:mx-4"
         )}>
           <div className="flex items-center gap-4 w-full max-w-xl">
             <button
@@ -189,7 +189,7 @@ function AppLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 relative">
+        <main className="flex-1 overflow-y-auto px-4 pb-4 pt-2 lg:px-8 lg:pb-8 lg:pt-2 relative">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/orders" element={<Orders />} />
