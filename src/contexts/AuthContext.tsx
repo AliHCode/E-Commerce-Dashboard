@@ -27,11 +27,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (email: string) => {
-    // Mock login
+    // Generate a capitalized name from the email prefix (e.g., 'john.doe@...' -> 'John Doe')
+    const emailPrefix = email.split('@')[0];
+    const generatedName = emailPrefix
+      .split(/[._-]/)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+
+    // Use a deterministic UI avatar service based on the generated name
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(generatedName)}&background=random&color=fff&size=100`;
+
+    // Dynamic login
     const newUser = {
       email,
-      name: "Alex Morgan",
-      avatar: "https://picsum.photos/seed/avatar/100/100",
+      name: generatedName || "User",
+      avatar: avatarUrl,
     };
     setUser(newUser);
     localStorage.setItem("user", JSON.stringify(newUser));
