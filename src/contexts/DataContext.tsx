@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define types based on mock data
 export interface Order {
@@ -31,8 +32,17 @@ export interface Customer {
   avatar: string;
 }
 
+interface PaginationMeta {
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  limit: number;
+}
+
 interface DataContextType {
   orders: Order[];
+  ordersMeta: PaginationMeta | null;
+  fetchOrders: (page: number) => Promise<void>;
   products: Product[];
   customers: Customer[];
   addOrder: (order: Omit<Order, "id">) => void;
@@ -49,62 +59,104 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersMeta, setOrdersMeta] = useState<PaginationMeta | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { token, logout } = useAuth();
+
+  const getFetchOptions = (method: string = 'GET', body?: any) => {
+    const options: RequestInit = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    };
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+    return options;
+  };
+
+  const handleFetch = async (url: string, options?: RequestInit) => {
+    const res = await fetch(url, options);
+    // If the token is rejected (e.g. expired), force a logout
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      throw new Error("Authentication session expired.");
+    }
+    return res;
+  };
+
+  const fetchOrders = async (page: number = 1) => {
+    if (!token) return;
+    try {
+      const res = await handleFetch(`/api/orders?page=${page}&limit=10`, getFetchOptions());
+      if (res.ok) {
+        const payload = await res.json();
+        setOrders(payload.data);
+        setOrdersMeta(payload.meta);
+      }
+    } catch (error) {
+      console.error("Failed to fetch paginated orders:", error);
+    }
+  };
+
   // FETCH DATA FROM OUR EXPRESS BACKEND API
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
+      // Don't try to fetch data if we don't have a token (we'll just get 401s anyway)
+      if (!token) {
+        setOrders([]);
+        setProducts([]);
+        setCustomers([]);
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const [ordersRes, productsRes, customersRes] = await Promise.all([
-          fetch('/api/orders'),
-          fetch('/api/products'),
-          fetch('/api/customers')
+        await fetchOrders(1); // Fetch first page of orders
+
+        const [productsRes, customersRes] = await Promise.all([
+          handleFetch('/api/products', getFetchOptions()),
+          handleFetch('/api/customers', getFetchOptions())
         ]);
 
-        if (ordersRes.ok && productsRes.ok && customersRes.ok) {
-          setOrders(await ordersRes.json());
+        if (productsRes.ok && customersRes.ok) {
           setProducts(await productsRes.json());
           setCustomers(await customersRes.json());
         }
       } catch (error) {
-        console.error("Failed to fetch data from backend API:", error);
+        console.error("Failed to fetch initial data from backend API:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchInitialData();
+  }, [token]); // Re-fetch whenever the token changes (i.e. on login/logout)
 
   // Order Actions
   const addOrder = async (order: Omit<Order, "id">) => {
     const newOrder = { ...order, id: `ORD-${Date.now().toString().slice(-3)}` };
     try {
-      await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrder)
-      });
+      await handleFetch('/api/orders', getFetchOptions('POST', newOrder));
       setOrders([newOrder as Order, ...orders]);
     } catch (err) { console.error(err); }
   };
 
   const updateOrder = async (id: string, updates: Partial<Order>) => {
     try {
-      await fetch(`/api/orders/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
+      await handleFetch(`/api/orders/${id}`, getFetchOptions('PUT', updates));
       setOrders(orders.map(o => o.id === id ? { ...o, ...updates } : o));
     } catch (err) { console.error(err); }
   };
 
   const deleteOrder = async (id: string) => {
     try {
-      await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+      await handleFetch(`/api/orders/${id}`, getFetchOptions('DELETE'));
       setOrders(orders.filter(o => o.id !== id));
     } catch (err) { console.error(err); }
   };
@@ -113,29 +165,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addProduct = async (product: Omit<Product, "id">) => {
     const newProduct = { ...product, id: `INV-${Date.now().toString().slice(-3)}` };
     try {
-      await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProduct)
-      });
+      await handleFetch('/api/products', getFetchOptions('POST', newProduct));
       setProducts([newProduct as Product, ...products]);
     } catch (err) { console.error(err); }
   };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     try {
-      await fetch(`/api/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
+      await handleFetch(`/api/products/${id}`, getFetchOptions('PUT', updates));
       setProducts(products.map(p => p.id === id ? { ...p, ...updates } : p));
     } catch (err) { console.error(err); }
   };
 
   const deleteProduct = async (id: string) => {
     try {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      await handleFetch(`/api/products/${id}`, getFetchOptions('DELETE'));
       setProducts(products.filter(p => p.id !== id));
     } catch (err) { console.error(err); }
   };
@@ -143,11 +187,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Customer Actions
   const addCustomer = async (customer: Omit<Customer, "id">) => {
     try {
-      const res = await fetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customer)
-      });
+      const res = await handleFetch('/api/customers', getFetchOptions('POST', customer));
       const data = await res.json();
       const newCustomer = { ...customer, id: data.id || Date.now() };
       setCustomers([newCustomer as Customer, ...customers]);
@@ -156,14 +196,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteCustomer = async (id: number) => {
     try {
-      await fetch(`/api/customers/${id}`, { method: 'DELETE' });
+      await handleFetch(`/api/customers/${id}`, getFetchOptions('DELETE'));
       setCustomers(customers.filter(c => c.id !== id));
     } catch (err) { console.error(err); }
   };
 
   return (
     <DataContext.Provider value={{
-      orders, products, customers,
+      orders, ordersMeta, fetchOrders, products, customers,
       addOrder, updateOrder, deleteOrder,
       addProduct, updateProduct, deleteProduct,
       addCustomer, deleteCustomer

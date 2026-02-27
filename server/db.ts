@@ -15,10 +15,19 @@ const pool = new Pool({
   }
 });
 
-// The Schema (The Blueprint) - Rewritten for PostgreSQL dialet
-const initDb = async () => {
+export const initDb = async () => {
   try {
     await pool.query(`
+            -- Users Table (For Authentication)
+            CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              email VARCHAR(255) UNIQUE NOT NULL,
+              password_hash VARCHAR(255) NOT NULL,
+              name VARCHAR(255) NOT NULL,
+              role VARCHAR(50) DEFAULT 'admin',
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             -- Customers Table
             CREATE TABLE IF NOT EXISTS customers (
               id SERIAL PRIMARY KEY,
@@ -58,6 +67,7 @@ const initDb = async () => {
 
 // Initialize tables if a DATABASE_URL is actually provided
 if (process.env.DATABASE_URL) {
+  // We still run it casually for the main app
   initDb();
 } else {
   console.warn('⚠️ No DATABASE_URL found. Please paste your Neon connection string into the .env file.');

@@ -1,9 +1,13 @@
-import db from './db';
+import db, { initDb } from './db';
 
 console.log('🌱 Starting database seed...');
 
 const seedData = async () => {
   try {
+    // --- 0. ENSURE TABLES EXIST BEFORE WE SEED ---
+    console.log('Building tables...');
+    await initDb();
+
     // --- 1. CLEARING OLD DATA ---
     console.log('Sweeping old data...');
     await db.query('DELETE FROM orders');

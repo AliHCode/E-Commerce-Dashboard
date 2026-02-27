@@ -6,11 +6,9 @@ import { cn } from "@/lib/utils";
 import { Search, Filter, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Orders() {
-  const { orders } = useData();
+  const { orders, ordersMeta, fetchOrders } = useData();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   // Filter Logic
   const filteredOrders = orders.filter(order => {
@@ -24,10 +22,9 @@ export function Orders() {
     return matchesSearch && matchesStatus;
   });
 
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+  const handlePageChange = (newPage: number) => {
+    fetchOrders(newPage);
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -92,8 +89,8 @@ export function Orders() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {paginatedOrders.length > 0 ? (
-                  paginatedOrders.map((order) => (
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs font-medium text-gray-900">#{order.id}</td>
                       <td className="px-4 py-3">
@@ -136,27 +133,27 @@ export function Orders() {
             </table>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
+          {/* Server-Side Pagination */}
+          {ordersMeta && ordersMeta.totalPages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
               <div className="text-xs text-gray-500">
-                Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredOrders.length)} of {filteredOrders.length} entries
+                Showing {((ordersMeta.currentPage - 1) * ordersMeta.limit) + 1} to {Math.min(ordersMeta.currentPage * ordersMeta.limit, ordersMeta.totalItems)} of {ordersMeta.totalItems} entries
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(ordersMeta.currentPage - 1)}
+                  disabled={ordersMeta.currentPage === 1}
                   className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                {Array.from({ length: ordersMeta.totalPages }, (_, i) => i + 1).map(page => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={cn(
                       "w-6 h-6 rounded text-xs font-medium flex items-center justify-center transition-colors",
-                      currentPage === page
+                      ordersMeta.currentPage === page
                         ? "bg-primary-600 text-white"
                         : "text-gray-600 hover:bg-gray-100"
                     )}
@@ -165,8 +162,8 @@ export function Orders() {
                   </button>
                 ))}
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(ordersMeta.currentPage + 1)}
+                  disabled={ordersMeta.currentPage === ordersMeta.totalPages}
                   className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-4 h-4" />
