@@ -7,7 +7,7 @@ export function RecentOrders() {
   const recentOrders = orders.slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {recentOrders.map((order) => (
         <div key={order.id} className="flex items-center">
           <div className="space-y-1">
@@ -26,7 +26,7 @@ export function RecentOrders() {
           </div>
         </div>
       ))}
-      <div className="pt-4 text-center">
+      <div className="pt-2 text-center">
         <Link to="/orders" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
           View all orders
         </Link>
