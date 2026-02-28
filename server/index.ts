@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import db from './db.js'; // 👈 IMPORT OUR NEW DATABASE FILE
+import db from './db'; // 👈 IMPORT OUR NEW DATABASE FILE
 
 // Set up the Express application
 const app = express();
@@ -304,7 +304,7 @@ app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
 });
 
 // Only listen on the port if we are running the server locally (not in a Vercel serverless environment)
-if (process.env.NODE_ENV !== 'production') {
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`\n======================================`);
         console.log(`🚀 Aether Backend running on port ${PORT}`);
