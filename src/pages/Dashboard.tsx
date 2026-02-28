@@ -6,40 +6,43 @@ import { InventoryList } from "@/components/InventoryList";
 import { ShoppingBag, DollarSign, Users, TrendingUp } from "lucide-react";
 
 export function Dashboard() {
-  const { orders, customers } = useData();
+  const { orders, products, customers } = useData();
 
-  // Calculate Stats
+  // Calculate Stats from real database data
   const totalRevenue = orders.reduce((acc, order) => {
     const amount = parseFloat(order.amount.replace(/[^0-9.-]+/g, ""));
     return acc + amount;
   }, 0);
 
   const activeOrders = orders.filter(o => o.status === "Processing" || o.status === "Pending").length;
-  const newCustomers = customers.filter(c => c.status === "New").length;
+  const completedOrders = orders.filter(o => o.status === "Completed").length;
+  const totalCustomers = customers.length;
+  const totalProducts = products.length;
+  const inStockProducts = products.filter(p => p.status === "In Stock").length;
 
   const stats = [
     {
       title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      change: "+20.1% from last month",
+      change: `From ${orders.length} total orders`,
       icon: DollarSign,
     },
     {
       title: "Active Orders",
       value: activeOrders.toString(),
-      change: "+180.1% from last month",
+      change: `${completedOrders} completed`,
       icon: ShoppingBag,
     },
     {
-      title: "New Customers",
-      value: `+${newCustomers}`,
-      change: "+19% from last month",
+      title: "Total Customers",
+      value: totalCustomers.toString(),
+      change: `${customers.filter(c => c.status === "Active").length} active`,
       icon: Users,
     },
     {
-      title: "Active Now",
-      value: "+573",
-      change: "+201 since last hour",
+      title: "Total Products",
+      value: totalProducts.toString(),
+      change: `${inStockProducts} in stock`,
       icon: TrendingUp,
     }
   ];
