@@ -1,15 +1,8 @@
 import { Pool } from 'pg';
 
-// Only load dotenv in local development — Vercel injects env vars natively
-if (!process.env.VERCEL) {
-  try {
-    // Use require() instead of top-level await, which Vercel doesn't support
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('dotenv').config();
-  } catch {
-    // dotenv may not be available in some environments
-  }
-}
+// NOTE: For local development, `tsx` automatically loads .env files.
+// On Vercel, environment variables are injected natively.
+// So we do NOT need dotenv at all.
 
 // PostgreSQL Connection Pool
 const pool = new Pool({
