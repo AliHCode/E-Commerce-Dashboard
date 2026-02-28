@@ -2,6 +2,14 @@
     "version": 2,
     "buildCommand": "vite build",
     "outputDirectory": "dist",
+    "functions": {
+        "api/index.ts": {
+            "includeFiles": "server/**"
+        },
+        "api/test.ts": {
+            "includeFiles": "server/**"
+        }
+    },
     "rewrites": [
         {
             "source": "/api/(.*)",
