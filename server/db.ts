@@ -3,15 +3,15 @@ import { Pool } from 'pg';
 // Only load dotenv in local development — Vercel injects env vars natively
 if (!process.env.VERCEL) {
   try {
-    const dotenv = await import('dotenv');
-    dotenv.config();
+    // Use require() instead of top-level await, which Vercel doesn't support
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('dotenv').config();
   } catch {
     // dotenv may not be available in some environments
   }
 }
 
 // PostgreSQL Connection Pool
-// Connects over the network to a permanent cloud database (Neon).
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL
@@ -25,8 +25,6 @@ export const initDb = async () => {
   if (isInitialized) return;
 
   try {
-    // Run each CREATE TABLE statement separately to avoid Postgres
-    // multi-statement issues with sequences that already exist.
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -75,8 +73,7 @@ export const initDb = async () => {
     isInitialized = true;
     console.log('✅ PostgreSQL Database connected and schema initialized.');
   } catch (error) {
-    console.error('❌ Failed to connect to PostgreSQL. Have you set DATABASE_URL in .env?', error);
-    // Don't re-throw — let the app still start so healthcheck can provide debug info
+    console.error('❌ Failed to connect to PostgreSQL:', error);
   }
 };
 
@@ -84,7 +81,7 @@ export const initDb = async () => {
 if (process.env.DATABASE_URL) {
   initDb();
 } else {
-  console.warn('⚠️ No DATABASE_URL found. Please set it in your environment variables.');
+  console.warn('⚠️ No DATABASE_URL found.');
 }
 
 export default pool;
