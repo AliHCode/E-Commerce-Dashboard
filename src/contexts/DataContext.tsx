@@ -7,7 +7,7 @@ export interface Order {
   customer: string;
   email: string;
   amount: string;
-  status: "Completed" | "Processing" | "Pending" | "Cancelled";
+  status: "Completed" | "Processing" | "Pending" | "Delivered" | "Cancelled";
   date: string;
 }
 
@@ -18,6 +18,7 @@ export interface Product {
   stock: number;
   status: "In Stock" | "Low Stock" | "Out of Stock";
   price: string;
+  image_url?: string;
 }
 
 export interface Customer {
