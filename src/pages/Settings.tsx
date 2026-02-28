@@ -213,7 +213,7 @@ export function Settings() {
                   )}>
                     {t === 'system' && <span className={cn("text-xs", isDark ? 'text-slate-500' : 'text-gray-400')}>Auto</span>}
                   </div>
-                  <p className={cn("text-center text-xs font-medium capitalize", theme === t ? 'text-primary-600' : subText)}>{t}</p>
+                  <p className={cn("text-center text-xs font-medium capitalize", theme === t ? 'text-primary-600' : (isDark ? 'text-slate-400' : 'text-gray-500'))}>{t}</p>
                 </div>
               ))}
             </div>
