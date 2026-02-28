@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 // We use CORS so our React frontend (running on port 3000) can talk to our Express backend (running on port 5000)
 import cors from 'cors';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from './db'; // 👈 IMPORT OUR NEW DATABASE FILE
 
