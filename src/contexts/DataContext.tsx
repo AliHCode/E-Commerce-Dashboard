@@ -46,6 +46,7 @@ interface DataContextType {
   fetchOrders: (page: number) => Promise<void>;
   products: Product[];
   customers: Customer[];
+  isLoading: boolean;
   addOrder: (order: Omit<Order, "id">) => void;
   updateOrder: (id: string, updates: Partial<Order>) => void;
   deleteOrder: (id: string) => void;
@@ -204,7 +205,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <DataContext.Provider value={{
-      orders, ordersMeta, fetchOrders, products, customers,
+      orders, ordersMeta, fetchOrders, products, customers, isLoading,
       addOrder, updateOrder, deleteOrder,
       addProduct, updateProduct, deleteProduct,
       addCustomer, deleteCustomer

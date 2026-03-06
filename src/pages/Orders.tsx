@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Search, Filter, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -16,7 +17,7 @@ const STATUS_COLORS: Record<string, { light: string; dark: string }> = {
 };
 
 export function Orders() {
-  const { orders, ordersMeta, fetchOrders, updateOrder } = useData();
+  const { orders, ordersMeta, fetchOrders, updateOrder, isLoading } = useData();
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -105,7 +106,23 @@ export function Orders() {
                 </tr>
               </thead>
               <tbody className={cn("divide-y", divider)}>
-                {filteredOrders.length > 0 ? (
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-16" /></td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-40" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 hidden sm:table-cell"><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-4 py-4"><Skeleton className="h-6 w-24 rounded-full" /></td>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-16 ml-auto" /></td>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-8 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => (
                     <tr key={order.id} className={cn("transition-colors", rowHover)}>
                       <td className={cn("px-4 py-3 font-mono text-xs font-medium", mainText)}>#{order.id}</td>

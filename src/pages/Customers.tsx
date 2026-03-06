@@ -3,11 +3,12 @@ import { useData, Customer } from "@/contexts/DataContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Search, Mail, Phone, MapPin, Plus, Trash2 } from "lucide-react";
 
 export function Customers() {
-  const { customers, addCustomer, deleteCustomer } = useData();
+  const { customers, addCustomer, deleteCustomer, isLoading } = useData();
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -86,7 +87,27 @@ export function Customers() {
         </CardHeader>
         <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
           <div className="grid gap-3 sm:gap-4">
-            {filteredCustomers.length > 0 ? filteredCustomers.map((customer) => (
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={cn(
+                  "flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-colors",
+                  isDark ? 'border-slate-800' : 'border-gray-100'
+                )}>
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-full shrink-0" />
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-3 w-40" />
+                      <Skeleton className="h-3 w-32 hidden sm:block" />
+                    </div>
+                  </div>
+                  <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
+                </div>
+              ))
+            ) : filteredCustomers.length > 0 ? filteredCustomers.map((customer) => (
               <div key={customer.id} className={cn(
                 "flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-colors",
                 isDark ? 'border-slate-800 hover:bg-slate-800/50' : 'border-gray-100 hover:bg-gray-50/50'

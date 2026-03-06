@@ -3,6 +3,7 @@ import { useData } from "@/contexts/DataContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SalesChart } from "@/components/SalesChart";
 import { RecentOrders } from "@/components/RecentOrders";
 import { InventoryList } from "@/components/InventoryList";
@@ -18,23 +19,34 @@ interface DashboardStats {
 }
 
 export function Dashboard() {
-  const { orders, products, customers } = useData();
+  const { orders, products, customers, isLoading } = useData();
   const { token } = useAuth();
   const { theme } = useTheme();
   const [period, setPeriod] = useState(30);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
+    let isMounted = true;
     const fetchStats = async () => {
+      setIsStatsLoading(true);
       try {
         const res = await fetch(`/api/stats?days=${period}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (res.ok) setStats(await res.json());
-      } catch (e) { console.error(e); }
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) setStats(data);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (isMounted) setIsStatsLoading(false);
+      }
     };
     fetchStats();
+    return () => { isMounted = false; };
   }, [token, period]);
 
   const downloadCSV = () => {
@@ -59,6 +71,8 @@ export function Dashboard() {
     ? <ArrowUpRight className="w-3 h-3 text-emerald-500 inline" />
     : <ArrowDownRight className="w-3 h-3 text-red-500 inline" />;
   const trendColor = (val: number) => val >= 0 ? 'text-emerald-500' : 'text-red-500';
+
+  const isDataLoading = isLoading || isStatsLoading || !stats;
 
   const statCards = stats ? [
     {
@@ -103,6 +117,7 @@ export function Dashboard() {
               "h-9 rounded-md border px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500",
               isDark ? 'bg-slate-800 border-slate-700 text-slate-200' : 'border-gray-200 bg-white'
             )}
+            disabled={isDataLoading}
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -110,7 +125,8 @@ export function Dashboard() {
           </select>
           <button
             onClick={downloadCSV}
-            className="h-9 px-3 sm:px-4 rounded-md bg-primary-600 text-white text-sm font-medium shadow-sm hover:bg-primary-700 transition-colors flex items-center gap-1.5"
+            disabled={isDataLoading || orders.length === 0}
+            className="h-9 px-3 sm:px-4 rounded-md bg-primary-600 text-white text-sm font-medium shadow-sm hover:bg-primary-700 transition-colors flex items-center gap-1.5 disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Download Report</span>
@@ -120,27 +136,42 @@ export function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat, i) => (
-          <Card key={i} className={cardClass}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6 sm:pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={cn("h-4 w-4", iconColor)} />
-            </CardHeader>
-            <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold font-mono tracking-tight">{stat.value}</div>
-              <p className={cn("text-[10px] sm:text-xs mt-1", subText)}>
-                {stat.trend !== 0 && (
-                  <span className={cn("font-medium mr-1", trendColor(stat.trend))}>
-                    {trendIcon(stat.trend)} {stat.trend > 0 ? '+' : ''}{stat.trend.toFixed(1)}%
-                  </span>
-                )}
-                {stat.subtitle}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {isDataLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className={cardClass}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6 sm:pb-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </CardHeader>
+              <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0 space-y-2">
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-3 w-40" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          statCards.map((stat, i) => (
+            <Card key={i} className={cardClass}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6 sm:pb-2">
+                <CardTitle className="text-xs sm:text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <stat.icon className={cn("h-4 w-4", iconColor)} />
+              </CardHeader>
+              <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                <div className="text-lg sm:text-2xl font-bold font-mono tracking-tight">{stat.value}</div>
+                <p className={cn("text-[10px] sm:text-xs mt-1", subText)}>
+                  {stat.trend !== 0 && (
+                    <span className={cn("font-medium mr-1", trendColor(stat.trend))}>
+                      {trendIcon(stat.trend)} {stat.trend > 0 ? '+' : ''}{stat.trend.toFixed(1)}%
+                    </span>
+                  )}
+                  {stat.subtitle}
+                </p>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Charts & Recent Orders */}
@@ -153,7 +184,15 @@ export function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-1 sm:pl-2 p-4 pt-0 sm:p-6 sm:pt-0">
-            <SalesChart />
+            {isDataLoading ? (
+              <div className="h-[250px] w-full flex items-end justify-between px-4 pb-0 pt-4 gap-2">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full rounded-t-sm" style={{ height: `${Math.random() * 60 + 20}%` }} />
+                ))}
+              </div>
+            ) : (
+              <SalesChart />
+            )}
           </CardContent>
         </Card>
         <Card className={cn("col-span-full lg:col-span-3", cardClass)}>
@@ -164,7 +203,18 @@ export function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-            <RecentOrders />
+            {isDataLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex flex-col gap-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <RecentOrders />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -178,7 +228,15 @@ export function Dashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-          <InventoryList />
+          {isDataLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <InventoryList />
+          )}
         </CardContent>
       </Card>
     </div>

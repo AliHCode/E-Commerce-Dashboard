@@ -3,11 +3,12 @@ import { useData, Product } from "@/contexts/DataContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Plus, Search, AlertCircle, CheckCircle2, XCircle, Trash2, ImageIcon } from "lucide-react";
 
 export function Products() {
-  const { products, addProduct, deleteProduct } = useData();
+  const { products, addProduct, deleteProduct, isLoading } = useData();
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -111,43 +112,65 @@ export function Products() {
                 </tr>
               </thead>
               <tbody className={cn("divide-y", divider)}>
-                {filteredProducts.map((item) => (
-                  <tr key={item.id} className={cn("transition-colors", rowHover)}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
-                        ) : (
-                          <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", isDark ? 'bg-slate-800' : 'bg-gray-100')}>
-                            <ImageIcon className={cn("w-4 h-4", subText)} />
-                          </div>
-                        )}
-                        <span className={cn("font-medium", mainText)}>{item.name}</span>
-                      </div>
-                    </td>
-                    <td className={cn("px-4 py-3 font-mono text-xs hidden sm:table-cell", subText)}>{item.sku}</td>
-                    <td className={cn("px-4 py-3 text-right font-mono", mainText)}>{item.stock}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        {item.status === "In Stock" && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
-                        {item.status === "Low Stock" && <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />}
-                        {item.status === "Out of Stock" && <XCircle className="w-3.5 h-3.5 text-red-500" />}
-                        <span className={cn("font-medium text-xs",
-                          item.status === "In Stock" && "text-green-600",
-                          item.status === "Low Stock" && "text-yellow-600",
-                          item.status === "Out of Stock" && "text-red-600",
-                        )}>{item.status}</span>
-                      </div>
-                    </td>
-                    <td className={cn("px-4 py-3 text-right font-mono", mainText)}>{item.price}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button onClick={() => deleteProduct(item.id)} className="text-slate-400 hover:text-red-600 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {filteredProducts.length === 0 && (
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 hidden sm:table-cell"><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-12 ml-auto" /></td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-1.5">
+                          <Skeleton className="w-3.5 h-3.5 rounded-full" />
+                          <Skeleton className="h-4 w-16" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-16 ml-auto" /></td>
+                      <td className="px-4 py-4"><Skeleton className="h-4 w-8 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredProducts.length > 0 ? (
+                  filteredProducts.map((item) => (
+                    <tr key={item.id} className={cn("transition-colors", rowHover)}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                          ) : (
+                            <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", isDark ? 'bg-slate-800' : 'bg-gray-100')}>
+                              <ImageIcon className={cn("w-4 h-4", subText)} />
+                            </div>
+                          )}
+                          <span className={cn("font-medium", mainText)}>{item.name}</span>
+                        </div>
+                      </td>
+                      <td className={cn("px-4 py-3 font-mono text-xs hidden sm:table-cell", subText)}>{item.sku}</td>
+                      <td className={cn("px-4 py-3 text-right font-mono", mainText)}>{item.stock}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          {item.status === "In Stock" && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
+                          {item.status === "Low Stock" && <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />}
+                          {item.status === "Out of Stock" && <XCircle className="w-3.5 h-3.5 text-red-500" />}
+                          <span className={cn("font-medium text-xs",
+                            item.status === "In Stock" && "text-green-600",
+                            item.status === "Low Stock" && "text-yellow-600",
+                            item.status === "Out of Stock" && "text-red-600",
+                          )}>{item.status}</span>
+                        </div>
+                      </td>
+                      <td className={cn("px-4 py-3 text-right font-mono", mainText)}>{item.price}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button onClick={() => deleteProduct(item.id)} className="text-slate-400 hover:text-red-600 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
                   <tr><td colSpan={6} className={cn("px-4 py-8 text-center", subText)}>No products found.</td></tr>
                 )}
               </tbody>
