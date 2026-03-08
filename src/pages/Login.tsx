@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
+import { motion, useReducedMotion } from "motion/react";
 import { LogoIcon } from "@/components/LogoIcon";
 
 export function Login() {
@@ -13,8 +12,39 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const { login, register } = useAuth();
+  const { login, register, isAuthenticated, isHydrating } = useAuth();
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!isHydrating && isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, isHydrating, navigate]);
+
+  const cardMotion = useMemo(
+    () =>
+      prefersReducedMotion
+        ? {}
+        : {
+            initial: { opacity: 0, y: 12 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+          },
+    [prefersReducedMotion],
+  );
+
+  const sectionMotion = useMemo(
+    () =>
+      prefersReducedMotion
+        ? {}
+        : {
+            initial: { opacity: 0, y: 8 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.3 },
+          },
+    [prefersReducedMotion],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +57,7 @@ export function Login() {
       } else {
         await login(email, password);
       }
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (err: any) {
       setErrorMsg(err.message || "An error occurred during authentication.");
     } finally {
@@ -37,36 +67,31 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Premium Light Background Elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.08),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.08),transparent_50%)] pointer-events-none" />
-
-      {/* Animated subtle grid */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] pointer-events-none mix-blend-overlay" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.08),transparent_45%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.05),transparent_45%)] pointer-events-none" />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(15,23,42,0.12) 0.8px, transparent 0.8px)",
+          backgroundSize: "18px 18px",
+        }}
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-[420px] relative z-10 bg-white/80 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100"
+        {...cardMotion}
+        className="w-full max-w-[420px] relative z-10 bg-white/85 backdrop-blur-md rounded-3xl p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100"
       >
         <div className="mb-8 text-center flex flex-col items-center">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="flex flex-col items-center"
-          >
+          <div className="flex flex-col items-center">
             <div className="flex items-center justify-center mb-2">
               <LogoIcon className="w-10 h-10 text-slate-900 -mr-1" />
-              <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 leading-none">
-                ether
-              </h1>
+              <h1 className="text-4xl font-sans font-bold tracking-tight text-slate-900 leading-none">ether</h1>
             </div>
             <p className="text-slate-500 text-sm font-medium">
               {isRegistering ? "Create a new enterprise account" : "Sign in to your enterprise dashboard"}
             </p>
-          </motion.div>
+          </div>
         </div>
 
         {errorMsg && (
@@ -75,13 +100,7 @@ export function Login() {
           </div>
         )}
 
-        <motion.form
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <motion.form {...sectionMotion} onSubmit={handleSubmit} className="space-y-4">
           {isRegistering && (
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-700 ml-1">Full Name</label>
@@ -91,7 +110,7 @@ export function Login() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300 shadow-sm"
+                  className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 shadow-sm"
                   placeholder="John Doe"
                 />
               </div>
@@ -106,7 +125,7 @@ export function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300 shadow-sm"
+                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 shadow-sm"
                 placeholder="name@aether.io"
               />
             </div>
@@ -115,7 +134,9 @@ export function Login() {
           <div className="space-y-2">
             <div className="flex items-center justify-between ml-1">
               <label className="text-xs font-semibold text-slate-700">Password</label>
-              <a href="#" className="text-xs text-primary-600 hover:text-primary-700 transition-colors font-medium">Forgot password?</a>
+              <a href="#" className="text-xs text-primary-600 hover:text-primary-700 transition-colors font-medium">
+                Forgot password?
+              </a>
             </div>
             <div className="relative">
               <input
@@ -123,8 +144,8 @@ export function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300 shadow-sm"
-                placeholder="••••••••"
+                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 shadow-sm"
+                placeholder="********"
               />
             </div>
           </div>
@@ -143,8 +164,8 @@ export function Login() {
 
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full h-12 mt-2 bg-gradient-to-r from-primary-600 to-primary-500 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
+            disabled={isLoading || isHydrating}
+            className="w-full h-12 mt-2 bg-gradient-to-r from-primary-600 to-primary-500 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-primary-500/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -156,12 +177,7 @@ export function Login() {
           </button>
         </motion.form>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="mt-6 text-center"
-        >
+        <div className="mt-6 text-center">
           <button
             type="button"
             onClick={() => setIsRegistering(!isRegistering)}
@@ -169,18 +185,13 @@ export function Login() {
           >
             {isRegistering ? "Already have an account? Sign in" : "Need an account? Create one"}
           </button>
-        </motion.div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-center text-xs text-slate-500 mt-8 font-medium space-x-2"
-        >
+        <p className="text-center text-xs text-slate-500 mt-8 font-medium space-x-2">
           <span className="hover:text-slate-800 cursor-pointer transition-colors">Privacy Policy</span>
-          <span>•</span>
+          <span>|</span>
           <span className="hover:text-slate-800 cursor-pointer transition-colors">Terms of Service</span>
-        </motion.p>
+        </p>
       </motion.div>
     </div>
   );
