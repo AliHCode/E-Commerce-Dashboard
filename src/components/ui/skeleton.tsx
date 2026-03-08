@@ -1,10 +1,11 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function Skeleton({
     className,
     ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement>) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 

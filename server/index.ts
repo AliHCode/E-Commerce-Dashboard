@@ -81,7 +81,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -89,7 +89,12 @@ app.post('/api/login', async (req, res) => {
         const user = result.rows[0];
         const validPassword = await bcrypt.compare(password, user.password_hash);
         if (!validPassword) return res.status(401).json({ error: 'Invalid email or password.' });
-        const token = jwt.sign({ id: user.id, email: user.email, name: user.name, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+        const sessionDuration = rememberMe ? '30d' : '24h';
+        const token = jwt.sign(
+            { id: user.id, email: user.email, name: user.name, role: user.role, rememberMe: !!rememberMe },
+            JWT_SECRET,
+            { expiresIn: sessionDuration }
+        );
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -103,7 +108,12 @@ app.put('/api/users/profile', authenticateToken, async (req: any, res) => {
     if (!validateEmail(email)) return res.status(400).json({ error: 'Invalid email format.' });
     try {
         await pool.query('UPDATE users SET name = $1, email = $2 WHERE id = $3', [name.trim(), email.trim(), req.user.id]);
-        const token = jwt.sign({ id: req.user.id, email: email.trim(), name: name.trim(), role: req.user.role }, JWT_SECRET, { expiresIn: '24h' });
+        const sessionDuration = req.user.rememberMe ? '30d' : '24h';
+        const token = jwt.sign(
+            { id: req.user.id, email: email.trim(), name: name.trim(), role: req.user.role, rememberMe: !!req.user.rememberMe },
+            JWT_SECRET,
+            { expiresIn: sessionDuration }
+        );
         res.json({ message: 'Profile updated', token, user: { id: req.user.id, name: name.trim(), email: email.trim(), role: req.user.role } });
     } catch (error: any) {
         if (error.code === '23505') return res.status(409).json({ error: 'Email already in use.' });
@@ -335,3 +345,4 @@ if (!process.env.VERCEL) {
 }
 
 export default app;
+

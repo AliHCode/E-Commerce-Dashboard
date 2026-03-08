@@ -10,6 +10,7 @@ export function Login() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const { login, register, isAuthenticated, isHydrating } = useAuth();
@@ -55,7 +56,7 @@ export function Login() {
       if (isRegistering) {
         await register(name, email, password);
       } else {
-        await login(email, password);
+        await login(email, password, rememberMe);
       }
       navigate("/", { replace: true });
     } catch (err: any) {
@@ -154,7 +155,12 @@ export function Login() {
             <div className="pt-2 pb-2">
               <label className="flex items-center gap-3 cursor-pointer group w-fit">
                 <div className="relative w-5 h-5 rounded-md border border-slate-300 bg-white flex items-center justify-center transition-colors group-hover:border-primary-500">
-                  <input type="checkbox" className="peer appearance-none absolute inset-0 rounded-md cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="peer appearance-none absolute inset-0 rounded-md cursor-pointer"
+                  />
                   <div className="w-2.5 h-2.5 bg-primary-500 rounded-sm scale-0 peer-checked:scale-100 transition-transform duration-200" />
                 </div>
                 <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors font-medium">Remember me for 30 days</span>
